@@ -29,6 +29,19 @@
   color: var(--tui-text-primary) !important;
 }
 
-.v-init {
-  visibility: initial;
+.file-content {
+  display: flex;
+  block-size: 10rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.file-panel {
+  justify-content: center;
+}
+
+.d-none {
+  display: none !important;
 }
