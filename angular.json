@@ -3,7 +3,7 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
-    "base-frontend": {
+    "BaseFrontend": {
       "projectType": "application",
       "schematics": {
         "@schematics/angular:component": {
@@ -39,7 +39,7 @@
         "build": {
           "builder": "@angular-devkit/build-angular:application",
           "options": {
-            "outputPath": "dist/base-frontend",
+            "outputPath": "dist/BaseFrontend",
             "index": "src/index.html",
             "browser": "src/main.ts",
             "polyfills": [
@@ -61,6 +61,7 @@
             "styles": [
               "node_modules/@taiga-ui/core/styles/taiga-ui-theme.less",
               "node_modules/@taiga-ui/core/styles/taiga-ui-fonts.less",
+              "node_modules/@taiga-ui/styles/taiga-ui-global.less",
               "src/styles.scss"
             ],
             "scripts": [],
@@ -104,10 +105,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "base-frontend:build:production"
+              "buildTarget": "BaseFrontend:build:production"
             },
             "development": {
-              "buildTarget": "base-frontend:build:development"
+              "buildTarget": "BaseFrontend:build:development"
             }
           },
           "defaultConfiguration": "development"

@@ -1,0 +1,26 @@
+.doc {
+  max-width: 988px;
+  margin: 0 auto;
+  text-align: left;
+
+  &__stepper {
+    margin-bottom: 2rem;
+    font-size: 1.1rem;
+  }
+
+  &__footer {
+    margin-top: 4rem;
+
+    & > {
+      button + button {
+        margin-left: 1rem;
+      }
+    }
+  }
+}
+
+.text {
+  line-height: 2;
+  font-weight: 500;
+  color: var(--tui-text-primary) !important;
+}

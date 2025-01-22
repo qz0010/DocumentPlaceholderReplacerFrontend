@@ -1,5 +1,5 @@
 {
-  "name": "base-frontend",
+  "name": "BaseFrontend",
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
@@ -7,10 +7,10 @@
     "start:dev": "ng serve -c=development",
     "build:prod": "ng build -c=production",
     "build:dev": "ng build -c=development",
-    "serve:prod": "node dist/base-frontend/server/server.mjs",
+    "serve:prod": "node dist/BaseFrontend/server/server.mjs",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:base-frontend": "node dist/base-frontend/server/server.mjs"
+    "serve:ssr:BaseFrontend": "node dist/BaseFrontend/server/server.mjs"
   },
   "private": true,
   "dependencies": {
@@ -34,6 +34,7 @@
     "@taiga-ui/icons": "^4.21.0",
     "@taiga-ui/kit": "^4.21.0",
     "@taiga-ui/layout": "^4.21.0",
+    "@taiga-ui/styles": "^4.21.0",
     "express": "^4.18.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
