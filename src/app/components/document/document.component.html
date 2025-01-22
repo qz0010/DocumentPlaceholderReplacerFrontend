@@ -8,21 +8,21 @@
   /></h1>
 
   <div class="doc__stepper">
-    <tui-stepper [activeItemIndex]="step$()" (activeItemIndexChange)="setStep($event)" #stepper>
+    <tui-stepper orientation="horizontal" [activeItemIndex]="step$()">
       <button
         tuiStep
-        type="button"
+        type="button" (click)="setStep(0)"
       >Добро пожаловать
       </button>
 
       <button
         tuiStep
-        type="button">Инструкция
+        type="button" (click)="setStep(1)">Инструкция
       </button>
 
       <button
         tuiStep
-        type="button">Ваш документ
+        type="button" (click)="setStep(2)">Ваш документ
       </button>
     </tui-stepper>
   </div>
@@ -59,7 +59,7 @@
           tuiInputFiles
         >
           <input
-            accept="image/*"
+            accept=".docx"
             tuiInputFiles
             [formControl]="control"
           />
@@ -97,7 +97,6 @@
       </ng-container>
     </ng-container>
   </div>
-
 
   <div class="doc__footer">
     <button tuiButton appearance="outline" (click)="prevStep()" [disabled]="step$() === 0">Назад</button>
