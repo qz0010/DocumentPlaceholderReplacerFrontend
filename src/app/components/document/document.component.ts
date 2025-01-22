@@ -1,9 +1,9 @@
 import {TuiBlockStatus} from '@taiga-ui/layout';
+import type {TuiFileLike} from '@taiga-ui/kit';
 import {TuiFiles, TuiStepper} from '@taiga-ui/kit';
 import {AsyncPipe, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
-import {Component} from '@angular/core';
+import {ChangeDetectionStrategy, Component, signal} from '@angular/core';
 import {FormControl, ReactiveFormsModule, Validators} from '@angular/forms';
-import type {TuiFileLike} from '@taiga-ui/kit';
 import type {Observable} from 'rxjs';
 import {finalize, map, of, Subject, switchMap, timer} from 'rxjs';
 import {TuiButton} from '@taiga-ui/core';
@@ -23,10 +23,11 @@ import {TuiButton} from '@taiga-ui/core';
   ],
   templateUrl: './document.component.html',
   styleUrl: './document.component.scss',
-  standalone: true
+  standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DocumentComponent {
-  public step = 1;
+  public step$ = signal(0);
 
   protected readonly control = new FormControl<TuiFileLike | null>(
     null,
@@ -64,5 +65,17 @@ export class DocumentComponent {
       }),
       finalize(() => this.loadingFiles$.next(null)),
     );
+  }
+
+  public setStep(step: number): void {
+    this.step$.set(step);
+  }
+
+  public nextStep(): void {
+    this.step$.set(this.step$() + 1);
+  }
+
+  public prevStep(): void {
+    this.step$.set(this.step$() - 1);
   }
 }

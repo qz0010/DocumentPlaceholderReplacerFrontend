@@ -1,108 +1,107 @@
 <div class="doc">
-    <h1 class="tui-space_bottom-12 tui-text_h4">WordVar - Обработка документов с переменными <img
-      alt="Логотип: Обработка Word-документов с переменными"
-      src="going-up.svg"
-      width="94"
-      height="83"
-      tuiSlot="top"
-    /></h1>
+  <h1 class="tui-space_bottom-12 tui-text_h4">WordVar - Обработка документов с переменными <img
+    alt="Логотип: Обработка Word-документов с переменными"
+    src="going-up.svg"
+    width="94"
+    height="83"
+    tuiSlot="top"
+  /></h1>
 
   <div class="doc__stepper">
-    <tui-stepper [activeItemIndex]="step" #stepper>
+    <tui-stepper [activeItemIndex]="step$()" (activeItemIndexChange)="setStep($event)" #stepper>
       <button
         tuiStep
         type="button"
-        size="s"
-        (click)="step = 1"
       >Добро пожаловать
       </button>
 
       <button
         tuiStep
-        type="button"
-        (click)="step = 2">Инструкция
+        type="button">Инструкция
       </button>
 
       <button
         tuiStep
-        type="button"
-        (click)="step = 3">Ваш документ
+        type="button">Ваш документ
       </button>
     </tui-stepper>
   </div>
 
-  <ng-container [ngSwitch]="step">
-    <ng-container *ngSwitchCase="1">
-      <p class="text tui-text_body-xl">
-        Добро пожаловать в приложение для работы с Word-документами!<br>
-        Здесь вы можете легко находить и заменять переменные в документах.
-      </p>
-    </ng-container>
+  <div class="doc__stepper-body">
+    <ng-container [ngSwitch]="step$()">
+      <ng-container *ngSwitchCase="0">
+        <p class="text tui-text_body-xl">
+          Добро пожаловать в приложение для работы с Word-документами!<br>
+          Здесь вы можете легко находить и заменять переменные в документах.
+        </p>
+      </ng-container>
 
-    <ng-container *ngSwitchCase="2">
-      <p class="text tui-text_body-xl">
-        1) Загрузите Word-документ в формате .docx.<br>
-        2) Приложение автоматически найдет все переменные в формате <b><~!Переменная!~></b> и отобразит их список.<br>
-        3) Заполните значения для переменных<br>
-        4) Скачайте результат:<br> Нажмите кнопку «Заменить переменные и скачать», чтобы получить обновленный документ.
-      </p>
+      <ng-container *ngSwitchCase="1">
+        <p class="text tui-text_body-xl">
+          1) Загрузите Word-документ в формате .docx.<br>
+          2) Приложение автоматически найдет все переменные в формате <b><~!Переменная!~></b> и отобразит их список.<br>
+          3) Заполните значения для переменных<br>
+          4) Скачайте результат:<br> Нажмите кнопку «Заменить переменные и скачать», чтобы получить обновленный документ.
+        </p>
 
-      <p class="text tui-text_body-xl">
-        Пример содержимого документа:<br>
-        <i>
-          Меня зовут <~!ФИО!~>, прошу принять заявление<br>
-          Текст... <~!АдресОбъекта!~> Текст...
-        </i>
-      </p>
-    </ng-container>
+        <p class="text tui-text_body-xl">
+          Пример содержимого документа:<br>
+          <i>
+            Меня зовут <~!ФИО!~>, прошу принять заявление<br>
+            Текст... <~!АдресОбъекта!~> Текст...
+          </i>
+        </p>
+      </ng-container>
 
-    <ng-container *ngSwitchCase="3">
-      <label
-        *ngIf="!control.value"
-        tuiInputFiles
-      >
-        <input
-          accept="image/*"
+      <ng-container *ngSwitchCase="2">
+        <label
+          *ngIf="!control.value"
           tuiInputFiles
-          [formControl]="control"
-        />
-      </label>
+        >
+          <input
+            accept="image/*"
+            tuiInputFiles
+            [formControl]="control"
+          />
+        </label>
 
-      <tui-files class="tui-space_top-1">
-        <tui-file
-          *ngIf="control.value | tuiFileRejected: {accept: '.docx'} | async as file"
-          state="error"
-          [file]="file"
-          (remove)="removeFile()"
-        />
+        <tui-files class="tui-space_top-1">
+          <tui-file
+            *ngIf="control.value | tuiFileRejected: {accept: '.docx'} | async as file"
+            state="error"
+            [file]="file"
+            (remove)="removeFile()"
+          />
 
-        <tui-file
-          *ngIf="loadedFiles$ | async as file"
-          [file]="file"
-          (remove)="removeFile()"
-        />
+          <tui-file
+            *ngIf="loadedFiles$ | async as file"
+            [file]="file"
+            (remove)="removeFile()"
+          />
 
-        <tui-file
-          *ngIf="failedFiles$ | async as file"
-          state="error"
-          [file]="file"
-          (remove)="removeFile()"
-        />
+          <tui-file
+            *ngIf="failedFiles$ | async as file"
+            state="error"
+            [file]="file"
+            (remove)="removeFile()"
+          />
 
-        <tui-file
-          *ngIf="loadingFiles$ | async as file"
-          state="loading"
-          [file]="file"
-          (remove)="removeFile()"
-        />
-      </tui-files>
+          <tui-file
+            *ngIf="loadingFiles$ | async as file"
+            state="loading"
+            [file]="file"
+            (remove)="removeFile()"
+          />
+        </tui-files>
 
+      </ng-container>
     </ng-container>
-  </ng-container>
+  </div>
+
 
   <div class="doc__footer">
-    <button tuiButton  appearance="outline" (click)="step = step - 1" *ngIf="step !== 1">Назад</button>
-    <button tuiButton  (click)="step = step + 1" *ngIf="step !== 3">Далее</button>
+    <button tuiButton appearance="outline" (click)="prevStep()" [disabled]="step$() === 0">Назад</button>
+    <button tuiButton (click)="nextStep()" [disabled]="step$() === 2">Далее</button>
   </div>
 </div>
 
