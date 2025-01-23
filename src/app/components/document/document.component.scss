@@ -17,7 +17,7 @@ button[data-appearance=positive] {
     font-size: 1.1rem;
 
     &-body {
-      block-size: 36rem;
+      max-block-size: 36rem;
     }
   }
 
@@ -43,6 +43,7 @@ button[data-appearance=positive] {
 }
 
 .text {
+  font-size: 1.05rem;
   line-height: 2;
   font-weight: 500;
   color: var(--tui-text-primary) !important;

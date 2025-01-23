@@ -1,7 +1,7 @@
 <tui-loader [overlay]="true" [showLoader]="false">
 
   <div class="doc">
-    <h1 class="tui-space_bottom-12 tui-text_h4">WordVar - Обработка документов с переменными <img
+    <h1 class="tui-space_bottom-6 tui-text_h5">WordVar - Обработка документов с переменными <img
       alt="Логотип: Обработка Word-документов с переменными"
       src="going-up.svg"
       width="94"
@@ -9,178 +9,154 @@
       tuiSlot="top"
     /></h1>
 
-    <div class="doc__stepper">
-      <tui-stepper orientation="horizontal" [activeItemIndex]="step$()!">
+    <div [ngClass]="{'d-none': control.value}">
+      <p class="text tui-text_body-xl">
+        1) Загрузите документ, приложение автоматически найдет все переменные в формате <b><~!Переменная!~></b>
         <button
-          tuiStep
-          type="button" (click)="setStep(0)"
-        >Добро пожаловать
+          type="button"
+          iconStart="@tui.copy"
+          tuiButton
+          size="xs"
+          appearance="accent"
+          [loading]="(copyTextLoading$ | async)"
+          (click)="copyText$.next()"
+        >
         </button>
+        <tui-chip appearance="positive" size="xs" iconStart="@tui.check" *ngIf="(copyTextSuccess$ | async)"></tui-chip>
+        <br>и отобразит их
+        список.<br>
+        2) Заполните значения для переменных<br>
+        3) Скачайте результат
+      </p>
 
-        <button
-          tuiStep
-          type="button" (click)="setStep(1)">Инструкция
-        </button>
+      <p class="text tui-text_body-xl">
+        Пример содержимого документа:<br>
+        <i>
+          Меня зовут <~!ФИО!~>, прошу принять заявление<br>
+          Текст... <~!АдресОбъекта!~> Текст...
+        </i>
+      </p>
+    </div>
 
-        <button
-          tuiStep
-          type="button" (click)="setStep(2)">Ваш документ
-        </button>
-      </tui-stepper>
+    <div>
+      <label
+        tuiInputFiles
+        [ngClass]="{ 'd-none': control.value && !(loadingFiles$ | async) }"
+      >
+        <input
+          accept=".docx"
+          tuiInputFiles
+          [formControl]="control"
+        />
+
+        <ng-template let-dragged>
+          <div class="file-content">
+            <div>
+              <tui-avatar
+                appearance="secondary"
+                src="@tui.cloud-upload"
+                size="l"
+                *ngIf="!(loadingFiles$ | async)"
+              />
+              <tui-loader size="l" *ngIf="loadingFiles$ | async"></tui-loader>
+              <div class="tui-space_top-4">
+                Перетащите файл или кликните для загрузки
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </label>
+
+      <tui-files class="" [ngClass]="{ 'd-none': !control.value }">
+        <tui-file
+          class="file-content"
+          state="error"
+          *ngIf="control.value | tuiFileRejected: {accept: '.docx'} | async as file"
+          [file]="file"
+          (remove)="removeFile()"
+        />
+
+        <tui-file
+          class="file-panel"
+          *ngIf="loadedFiles$ | async as file"
+          [file]="file"
+          (remove)="removeFile()"
+        />
+
+        <tui-file
+          class="file-panel"
+          state="error"
+          *ngIf="failedFiles$ | async as file"
+          [file]="file"
+          (remove)="removeFile()"
+        />
+      </tui-files>
     </div>
 
     <tui-scrollbar
       waIntersectionRoot
       class="doc__stepper-body"
     >
-      <ng-container [ngSwitch]="step$()">
-        <ng-container *ngSwitchCase="0">
-          <p class="text tui-text_body-xl">
-            Добро пожаловать в приложение для работы с Word-документами!<br>
-            Здесь вы можете легко находить и заменять переменные в документах.
-          </p>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="1">
-          <p class="text tui-text_body-xl">
-            1) Загрузите Word-документ в формате .docx.<br>
-            2) Приложение автоматически найдет все переменные в формате <b><~!Переменная!~></b> и отобразит их
-            список.<br>
-            3) Заполните значения для переменных<br>
-            4) Скачайте результат:<br> Нажмите кнопку «Заменить переменные и скачать», чтобы получить обновленный
-            документ.
-          </p>
-
-          <p class="text tui-text_body-xl">
-            Пример содержимого документа:<br>
-            <i>
-              Меня зовут <~!ФИО!~>, прошу принять заявление<br>
-              Текст... <~!АдресОбъекта!~> Текст...
-            </i>
-          </p>
-        </ng-container>
-
-        <ng-container *ngSwitchCase="2">
-          <div>
-            <label
-              tuiInputFiles
-              [ngClass]="{ 'd-none': control.value && !(loadingFiles$ | async) }"
-            >
-              <input
-                accept=".docx"
-                tuiInputFiles
-                [formControl]="control"
-              />
-
-              <ng-template let-dragged>
-                <div class="file-content">
-                  <div>
-                    <tui-avatar
-                      appearance="secondary"
-                      src="@tui.cloud-upload"
-                      size="l"
-                      *ngIf="!(loadingFiles$ | async)"
-                    />
-                    <tui-loader size="l" *ngIf="loadingFiles$ | async"></tui-loader>
-                    <div class="tui-space_top-4">
-                      Перетащите файл или кликните для загрузки
-                    </div>
-                  </div>
-                </div>
-              </ng-template>
-            </label>
-
-            <tui-files class="" [ngClass]="{ 'd-none': !control.value }">
-              <tui-file
-                class="file-content"
-                state="error"
-                *ngIf="control.value | tuiFileRejected: {accept: '.docx'} | async as file"
-                [file]="file"
-                (remove)="removeFile()"
-              />
-
-              <tui-file
-                class="file-panel"
-                *ngIf="loadedFiles$ | async as file"
-                [file]="file"
-                (remove)="removeFile()"
-              />
-
-              <tui-file
-                class="file-panel"
-                state="error"
-                *ngIf="failedFiles$ | async as file"
-                [file]="file"
-                (remove)="removeFile()"
-              />
-            </tui-files>
-          </div>
-
-
-          <table
-            tuiTable
-            class="tui-space_top-4 table"
-            [columns]="columns$()"
-            *ngIf="loadedFiles$ | async"
+      <table
+        tuiTable
+        class="tui-space_top-4 table"
+        [columns]="columns$()"
+        *ngIf="loadedFiles$ | async"
+      >
+        <thead>
+        <tr tuiThGroup>
+          <th
+            tuiTh
+            [resizable]="true"
           >
-            <thead>
-            <tr tuiThGroup>
-              <th
-                tuiTh
-                [resizable]="true"
-              >
-                Переменные
-              </th>
-              <th tuiTh [resizable]="true">Значения</th>
-            </tr>
-            </thead>
-            <tbody
-              tuiTbody
-              [data]="data$()"
-            >
-            <tr
-              *ngFor="let item of data$()"
-              tuiTr
-            >
-              <!--        -->
-              <td
-                tuiTd
-                *tuiCell="'var'"
-              >
-                {{ item }}
-              </td>
+            Переменные
+          </th>
+          <th tuiTh [resizable]="true">Значения</th>
+        </tr>
+        </thead>
+        <tbody
+          tuiTbody
+          [data]="data$()"
+        >
+        <tr
+          *ngFor="let item of data$()"
+          tuiTr
+        >
+          <!--        -->
+          <td
+            tuiTd
+            *tuiCell="'var'"
+          >
+            {{ item }}
+          </td>
 
-              <td
-                tuiTd
-                *tuiCell="'value'"
+          <td
+            tuiTd
+            *tuiCell="'value'"
 
 
-              >
-                <tui-textarea
-                  class="textarea"
-                  [expandable]="true"
-                  [rows]="1"
-                  ngModel
-                  (ngModelChange)="onCellChange(item, $event)"/>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-
-        </ng-container>
-      </ng-container>
+          >
+            <tui-textarea
+              class="textarea"
+              [expandable]="true"
+              [rows]="1"
+              ngModel
+              (ngModelChange)="onCellChange(item, $event)"/>
+          </td>
+        </tr>
+        </tbody>
+      </table>
     </tui-scrollbar>
 
     <div class="doc__footer">
-      <button tuiButton appearance="outline" size="l" (click)="prevStep()" [disabled]="step$() === 0">Назад</button>
-      <button tuiButton (click)="nextStep()" size="l" *ngIf="step$() !== 2">Далее</button>
-
       <div class="doc__footer-submit" *ngIf="step$() === 2 && !!(loadedFiles$ | async)">
         <button tuiButton appearance="positive" size="l">
           <tui-icon
             icon="@tui.download"
             [style.height.rem]="1"
-          />Заменить переменные и скачать</button>
+          />
+          Заменить переменные и скачать
+        </button>
       </div>
     </div>
   </div>
