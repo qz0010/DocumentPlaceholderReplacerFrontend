@@ -5,6 +5,12 @@ button[data-appearance=positive] {
   &:hover {
     background: #21a65a;
   }
+
+  tui-loader ::ng-deep {
+    circle {
+      stroke: #fff;
+    }
+  }
 }
 
 .doc {

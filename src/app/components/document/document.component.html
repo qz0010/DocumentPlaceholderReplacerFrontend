@@ -1,4 +1,3 @@
-<tui-loader [overlay]="true" [showLoader]="pending$()">
   <div class="doc">
     <h1 class="tui-space_bottom-6 tui-text_h5">WordVar - Обработка документов с переменными <img
       alt="Логотип: Обработка Word-документов с переменными"
@@ -40,11 +39,12 @@
     <div>
       <label
         tuiInputFiles
-        [ngClass]="{ 'd-none': control.value && !(loadingFiles$ | async) }"
+        [ngClass]="{ 'd-none': loadedFiles$ | async }"
       >
         <input
           accept=".docx"
           tuiInputFiles
+          [maxFileSize]="Infinity"
           [formControl]="control"
         />
 
@@ -68,14 +68,6 @@
 
       <tui-files class="" [ngClass]="{ 'd-none': !control.value }">
         <tui-file
-          class="file-content"
-          state="error"
-          *ngIf="control.value | tuiFileRejected: {accept: '.docx'} | async as file"
-          [file]="file"
-          (remove)="removeFile()"
-        />
-
-        <tui-file
           class="file-panel"
           *ngIf="loadedFiles$ | async as file"
           [file]="file"
@@ -96,11 +88,15 @@
       waIntersectionRoot
       class="doc__stepper-body"
     >
+      <p class="tui-text_body-xl" style="text-align:center;"
+         *ngIf="(loadedFiles$ | async) && !data$()?.length">
+        Переменные в данном файле отсутствуют
+      </p>
       <table
         tuiTable
         class="tui-space_top-4 table"
         [columns]="columns$()"
-        *ngIf="loadedFiles$ | async"
+        *ngIf="!(loadingFiles$ | async) && data$()?.length && control.value"
       >
         <thead>
         <tr tuiThGroup>
@@ -147,15 +143,14 @@
     </tui-scrollbar>
 
     <div class="doc__footer">
-      <div class="doc__footer-submit" *ngIf="!!(loadedFiles$ | async)">
-        <button tuiButton appearance="positive" size="l" (click)="onSubmit()">
+      <div class="doc__footer-submit" *ngIf="!!(loadedFiles$ | async) && !!data$()?.length">
+        <button tuiButton appearance="positive" size="l" [disabled]="pending$()" (click)="onSubmit()">
           <tui-icon
             icon="@tui.download"
             [style.height.rem]="1"
           />
-          Заменить переменные и скачать
+          Заменить переменные и скачать <tui-loader *ngIf="pending$()"/>
         </button>
       </div>
     </div>
   </div>
-</tui-loader>

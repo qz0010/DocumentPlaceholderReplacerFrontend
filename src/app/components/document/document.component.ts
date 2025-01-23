@@ -40,7 +40,7 @@ import {environment} from '../../../environments/environment';
     WaIntersectionObserver,
     TuiIcon,
     TuiButtonLoading,
-    TuiChip
+    TuiChip,
   ],
   templateUrl: './document.component.html',
   styleUrl: './document.component.scss',
@@ -66,11 +66,7 @@ export class DocumentComponent implements AfterViewInit {
 
   protected readonly failedFiles$ = new Subject<TuiFileLike | null>();
   protected readonly loadingFiles$ = new Subject<TuiFileLike | null>();
-  protected readonly loadedFiles$ = this.control.valueChanges.pipe(
-    switchMap((file) => {
-      return this.processFile(file);
-    }),
-  );
+  protected readonly loadedFiles$ = new BehaviorSubject<any>(null);
 
   public columns$ = signal<string[]>(['var', 'value']);
 
@@ -103,7 +99,13 @@ export class DocumentComponent implements AfterViewInit {
           })
         )
       )
-    ).subscribe()
+    ).subscribe();
+
+    this.control.valueChanges.pipe(
+      switchMap((file) => {
+        return this.processFile(file);
+      }),
+    ).subscribe();
   }
 
   protected removeFile(): void {
@@ -115,13 +117,13 @@ export class DocumentComponent implements AfterViewInit {
     this.failedFiles$.next(null);
 
     if (this.control.invalid || !file) {
+      this.loadedFiles$.next(null);
       return of(null);
     }
+    this.loadingFiles$.next(file);
 
     const formData = new FormData();
     formData.append('file', file as File);
-
-    this.loadingFiles$.next(file);
 
     return this.http.post<{ variables: string[] }>(`${this.apiUrl}/document/extract`, formData).pipe(
       map((res) => {
@@ -142,11 +144,12 @@ export class DocumentComponent implements AfterViewInit {
             return acc;
           }, [] as any[])
         );
-        console.log('dadadad', this.data$());
 
+        this.loadedFiles$.next(file);
         return file;
       }),
       catchError(err => {
+        this.loadedFiles$.next(null);
         this.loadingFiles$.next(null);
         this.failedFiles$.next(file);
 
@@ -183,4 +186,6 @@ export class DocumentComponent implements AfterViewInit {
         downloadAnchorNode.remove();
       });
   }
+
+  protected readonly Infinity = Infinity;
 }
