@@ -35,6 +35,7 @@
     "@taiga-ui/icons": "^4.21.0",
     "@taiga-ui/kit": "^4.21.0",
     "@taiga-ui/layout": "^4.21.0",
+    "@taiga-ui/legacy": "^4.21.0",
     "@taiga-ui/styles": "^4.21.0",
     "express": "^4.18.2",
     "rxjs": "~7.8.0",

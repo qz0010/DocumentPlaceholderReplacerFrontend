@@ -1,3 +1,12 @@
+button[data-appearance=positive] {
+  color: #fff;
+  background: #2ab553;
+
+  &:hover {
+    background: #21a65a;
+  }
+}
+
 .doc {
   max-width: 988px;
   margin: 0 auto;
@@ -8,12 +17,22 @@
     font-size: 1.1rem;
 
     &-body {
-      height: 370px;
+      block-size: 36rem;
     }
   }
 
   &__footer {
+    position: relative;
     margin-top: 4rem;
+
+    &-submit {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+    }
 
     & > {
       button + button {
@@ -44,4 +63,31 @@
 
 .d-none {
   display: none !important;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+td {
+}
+
+tui-textarea {
+  overflow: hidden;
+  max-height: initial;
+  min-height: 100%;
+
+  & > .t-outline {
+    flex: 1;
+  }
+
+  .t-wrapper {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+  }
+
+  ::ng-deep tui-scrollbar {
+    max-height: initial !important;
+  }
 }

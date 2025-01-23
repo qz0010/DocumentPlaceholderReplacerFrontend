@@ -1,4 +1,5 @@
 <tui-loader [overlay]="true" [showLoader]="false">
+
   <div class="doc">
     <h1 class="tui-space_bottom-12 tui-text_h4">WordVar - Обработка документов с переменными <img
       alt="Логотип: Обработка Word-документов с переменными"
@@ -28,7 +29,10 @@
       </tui-stepper>
     </div>
 
-    <div class="doc__stepper-body">
+    <tui-scrollbar
+      waIntersectionRoot
+      class="doc__stepper-body"
+    >
       <ng-container [ngSwitch]="step$()">
         <ng-container *ngSwitchCase="0">
           <p class="text tui-text_body-xl">
@@ -111,13 +115,73 @@
               />
             </tui-files>
           </div>
+
+
+          <table
+            tuiTable
+            class="tui-space_top-4 table"
+            [columns]="columns$()"
+            *ngIf="loadedFiles$ | async"
+          >
+            <thead>
+            <tr tuiThGroup>
+              <th
+                tuiTh
+                [resizable]="true"
+              >
+                Переменные
+              </th>
+              <th tuiTh [resizable]="true">Значения</th>
+            </tr>
+            </thead>
+            <tbody
+              tuiTbody
+              [data]="data$()"
+            >
+            <tr
+              *ngFor="let item of data$()"
+              tuiTr
+            >
+              <!--        -->
+              <td
+                tuiTd
+                *tuiCell="'var'"
+              >
+                {{ item }}
+              </td>
+
+              <td
+                tuiTd
+                *tuiCell="'value'"
+
+
+              >
+                <tui-textarea
+                  class="textarea"
+                  [expandable]="true"
+                  [rows]="1"
+                  ngModel
+                  (ngModelChange)="onCellChange(item, $event)"/>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+
         </ng-container>
       </ng-container>
-    </div>
+    </tui-scrollbar>
 
     <div class="doc__footer">
-      <button tuiButton appearance="outline" (click)="prevStep()" [disabled]="step$() === 0">Назад</button>
-      <button tuiButton (click)="nextStep()" [disabled]="step$() === 2">Далее</button>
+      <button tuiButton appearance="outline" size="l" (click)="prevStep()" [disabled]="step$() === 0">Назад</button>
+      <button tuiButton (click)="nextStep()" size="l" *ngIf="step$() !== 2">Далее</button>
+
+      <div class="doc__footer-submit" *ngIf="step$() === 2 && !!(loadedFiles$ | async)">
+        <button tuiButton appearance="positive" size="l">
+          <tui-icon
+            icon="@tui.download"
+            [style.height.rem]="1"
+          />Заменить переменные и скачать</button>
+      </div>
     </div>
   </div>
 </tui-loader>

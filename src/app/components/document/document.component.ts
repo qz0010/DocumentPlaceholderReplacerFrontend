@@ -1,6 +1,6 @@
 import {TuiBlockStatus} from '@taiga-ui/layout';
 import {TuiAvatar, TuiFileLike, TuiFiles, TuiStepper, TuiStepperComponent} from '@taiga-ui/kit';
-import {AsyncPipe, NgClass, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
+import {AsyncPipe, NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
 import {
   AfterViewInit,
   ChangeDetectionStrategy,
@@ -10,11 +10,14 @@ import {
   signal,
   ViewChild
 } from '@angular/core';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {catchError, delay, finalize, map, Observable, of, Subject, switchMap, tap} from 'rxjs';
-import {TuiButton, TuiLoader} from '@taiga-ui/core';
+import {TuiButton, TuiIcon, TuiLoader, TuiScrollbar} from '@taiga-ui/core';
 import {HttpClient} from '@angular/common/http';
 import {ActivatedRoute, Router} from '@angular/router';
+import {TuiTable} from '@taiga-ui/addon-table';
+import {TuiTextareaModule} from '@taiga-ui/legacy';
+import {WaIntersectionObserver} from '@ng-web-apis/intersection-observer';
 
 @Component({
   selector: 'app-document',
@@ -31,6 +34,13 @@ import {ActivatedRoute, Router} from '@angular/router';
     TuiAvatar,
     TuiLoader,
     NgClass,
+    NgFor,
+    TuiTable,
+    TuiTextareaModule,
+    FormsModule,
+    TuiScrollbar,
+    WaIntersectionObserver,
+    TuiIcon
   ],
   templateUrl: './document.component.html',
   styleUrl: './document.component.scss',
@@ -61,6 +71,12 @@ export class DocumentComponent implements AfterViewInit {
     }),
   );
 
+  public columns$ = signal<string[]>(['var', 'value']);
+
+  public data$ = signal<string[]>([]);
+
+  public form: {[key: string]: string[]} = {};
+
   ngAfterViewInit() {
     of(null)
       .pipe(
@@ -83,8 +99,6 @@ export class DocumentComponent implements AfterViewInit {
   protected processFile(file: TuiFileLike | null): Observable<TuiFileLike | null> {
     this.failedFiles$.next(null);
 
-    console.log('processFile', file);
-
     if (this.control.invalid || !file) {
       return of(null);
     }
@@ -94,8 +108,14 @@ export class DocumentComponent implements AfterViewInit {
 
     this.loadingFiles$.next(file);
 
-    return this.http.post('http://localhost:3000/document/extract', formData).pipe(
-      map(() => {
+    return this.http.post<{variables: string[]}>('http://localhost:3000/document/extract', formData).pipe(
+      map((res) => {
+        this.data$.set(res.variables);
+        this.form = res.variables.reduce((acc, v) => {
+          acc[v] = [];
+          return acc;
+        }, {} as {[key: string]: string[]});
+
         return file;
       }),
       catchError(err => {
@@ -106,6 +126,11 @@ export class DocumentComponent implements AfterViewInit {
       }),
       finalize(() => this.loadingFiles$.next(null)),
     );
+  }
+
+  public onCellChange(variable: string, value: Event): void {
+    // this.form[variable] = value;
+    console.log(variable, value, this.form)
   }
 
   public setStep(step: number): void {
