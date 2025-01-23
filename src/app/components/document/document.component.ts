@@ -14,10 +14,10 @@ import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BehaviorSubject, catchError, delay, finalize, from, map, Observable, of, Subject, switchMap, tap} from 'rxjs';
 import {TuiButton, TuiIcon, TuiLoader, TuiScrollbar} from '@taiga-ui/core';
 import {HttpClient} from '@angular/common/http';
-import {ActivatedRoute, Router} from '@angular/router';
 import {TuiTable} from '@taiga-ui/addon-table';
 import {TuiTextareaModule} from '@taiga-ui/legacy';
 import {WaIntersectionObserver} from '@ng-web-apis/intersection-observer';
+import {environment} from '../../../environments/environment';
 
 @Component({
   selector: 'app-document',
@@ -49,10 +49,8 @@ import {WaIntersectionObserver} from '@ng-web-apis/intersection-observer';
 })
 export class DocumentComponent implements AfterViewInit {
   private readonly http = inject(HttpClient);
-  private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
   public pending$ = signal(false);
-
+  private apiUrl = environment.apiUrl;
 
   public copyTextLoading$ = new BehaviorSubject<boolean>(false); // Для управления показом loader
   public copyTextSuccess$ = new BehaviorSubject<boolean>(false); // Для управления показом success
@@ -125,7 +123,7 @@ export class DocumentComponent implements AfterViewInit {
 
     this.loadingFiles$.next(file);
 
-    return this.http.post<{ variables: string[] }>('http://localhost:3000/document/extract', formData).pipe(
+    return this.http.post<{ variables: string[] }>(`${this.apiUrl}/document/extract`, formData).pipe(
       map((res) => {
         const b: any = {};
         this.data$.set(
@@ -167,13 +165,13 @@ export class DocumentComponent implements AfterViewInit {
         formData.append(`${key}[${_index}]`, value);
       })
     });
-    this.http.post('http://localhost:3000/document/replace', formData, {
+    this.http.post(`${this.apiUrl}/document/replace`, formData, {
       responseType: 'blob'
     }).pipe(
       finalize(() => this.pending$.set(false))
     )
       .subscribe(res => {
-        const file = new Blob([res], { type: 'application/binary' });
+        const file = new Blob([res], {type: 'application/binary'});
         const fileURL = URL.createObjectURL(file);
 
         const downloadAnchorNode = document.createElement('a');
@@ -183,6 +181,6 @@ export class DocumentComponent implements AfterViewInit {
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
-    });
+      });
   }
 }
