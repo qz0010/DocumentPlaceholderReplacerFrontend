@@ -8,7 +8,7 @@ import {
   TuiStepper,
   TuiStepperComponent
 } from '@taiga-ui/kit';
-import {AsyncPipe, NgClass, NgFor, NgIf, NgSwitch, NgSwitchCase} from '@angular/common';
+import {AsyncPipe, NgClass, NgFor, NgIf} from '@angular/common';
 import {AfterViewInit, ChangeDetectionStrategy, Component, inject, signal, ViewChild} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BehaviorSubject, catchError, delay, finalize, from, map, Observable, of, Subject, switchMap, tap} from 'rxjs';
@@ -22,8 +22,6 @@ import {WaIntersectionObserver} from '@ng-web-apis/intersection-observer';
 @Component({
   selector: 'app-document',
   imports: [
-    NgSwitch,
-    NgSwitchCase,
     ReactiveFormsModule,
     NgIf,
     TuiBlockStatus,
@@ -53,7 +51,7 @@ export class DocumentComponent implements AfterViewInit {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
-  public pending$ = signal(true);
+  public pending$ = signal(false);
 
 
   public copyTextLoading$ = new BehaviorSubject<boolean>(false); // Для управления показом loader
@@ -63,8 +61,6 @@ export class DocumentComponent implements AfterViewInit {
   public copyText$ = new Subject<void>();
 
   @ViewChild(TuiStepperComponent) private readonly stepper?: TuiStepperComponent;
-
-  public step$ = signal(+(this.route.snapshot.queryParams['step'] || '0'));
 
   protected readonly control = new FormControl<TuiFileLike | null>(
     null,
@@ -80,24 +76,11 @@ export class DocumentComponent implements AfterViewInit {
 
   public columns$ = signal<string[]>(['var', 'value']);
 
-  public data$ = signal<string[]>([]);
+  public data$ = signal<any[]>([]);
 
   public form: { [key: string]: string[] } = {};
 
   ngAfterViewInit() {
-    of(null)
-      .pipe(
-        delay(200),
-        tap(() => {
-          this.stepper?.activate(this.step$());
-        }),
-        delay(100),
-        tap(() => {
-          this.pending$.set(false);
-        }),
-      ).subscribe();
-
-
     this.copyText$.pipe(
       tap(() => {
         this.copyTextLoading$.next(true);        // Показать loader
@@ -144,11 +127,24 @@ export class DocumentComponent implements AfterViewInit {
 
     return this.http.post<{ variables: string[] }>('http://localhost:3000/document/extract', formData).pipe(
       map((res) => {
-        this.data$.set(res.variables);
-        this.form = res.variables.reduce((acc, v) => {
-          acc[v] = [];
-          return acc;
-        }, {} as { [key: string]: string[] });
+        const b: any = {};
+        this.data$.set(
+          res.variables.reduce((acc, _var) => {
+            if (_var in b) {
+              b[_var]++;
+            }
+            acc.push({
+              variable: _var,
+              index: b[_var] || 0
+            });
+            b[_var] = 0;
+
+            this.form[_var] = [];
+
+            return acc;
+          }, [] as any[])
+        );
+        console.log('dadadad', this.data$());
 
         return file;
       }),
@@ -162,30 +158,31 @@ export class DocumentComponent implements AfterViewInit {
     );
   }
 
-  public onCellChange(variable: string, value: Event): void {
-    // this.form[variable] = value;
-    console.log(variable, value, this.form)
-  }
+  public onSubmit(): void {
+    this.pending$.set(true);
+    const formData = new FormData();
+    formData.append('file', this.control.value as File);
+    Object.keys(this.form).forEach((key: string, index) => {
+      this.form[key].forEach((value: string, _index) => {
+        formData.append(`${key}[${_index}]`, value);
+      })
+    });
+    this.http.post('http://localhost:3000/document/replace', formData, {
+      responseType: 'blob'
+    }).pipe(
+      finalize(() => this.pending$.set(false))
+    )
+      .subscribe(res => {
+        const file = new Blob([res], { type: 'application/binary' });
+        const fileURL = URL.createObjectURL(file);
 
-  public setStep(step: number): void {
-    this.step$.set(step);
-    this.router.navigate([], {queryParams: {step: this.step$()}})
-  }
+        const downloadAnchorNode = document.createElement('a');
+        downloadAnchorNode.href = fileURL;
+        downloadAnchorNode.download = `${this.control.value?.name}`;
 
-  public nextStep(): void {
-    this.setStep(this.step$() + 1);
-  }
-
-  public prevStep(): void {
-    this.setStep(this.step$() - 1);
-  }
-
-  public copyToClipboard() {
-    try {
-      navigator.clipboard.writeText('<~!Переменная!~>');
-      console.log("Текст успешно скопирован в буфер!");
-    } catch (err) {
-      console.error("Ошибка при копировании текста: ", err);
-    }
+        document.body.appendChild(downloadAnchorNode);
+        downloadAnchorNode.click();
+        downloadAnchorNode.remove();
+    });
   }
 }

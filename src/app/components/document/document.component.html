@@ -1,5 +1,4 @@
-<tui-loader [overlay]="true" [showLoader]="false">
-
+<tui-loader [overlay]="true" [showLoader]="pending$()">
   <div class="doc">
     <h1 class="tui-space_bottom-6 tui-text_h5">WordVar - Обработка документов с переменными <img
       alt="Логотип: Обработка Word-документов с переменными"
@@ -127,7 +126,7 @@
             tuiTd
             *tuiCell="'var'"
           >
-            {{ item }}
+            {{ item.variable }}
           </td>
 
           <td
@@ -140,8 +139,7 @@
               class="textarea"
               [expandable]="true"
               [rows]="1"
-              ngModel
-              (ngModelChange)="onCellChange(item, $event)"/>
+              [(ngModel)]="form[item.variable][item.index]"/>
           </td>
         </tr>
         </tbody>
@@ -149,8 +147,8 @@
     </tui-scrollbar>
 
     <div class="doc__footer">
-      <div class="doc__footer-submit" *ngIf="step$() === 2 && !!(loadedFiles$ | async)">
-        <button tuiButton appearance="positive" size="l">
+      <div class="doc__footer-submit" *ngIf="!!(loadedFiles$ | async)">
+        <button tuiButton appearance="positive" size="l" (click)="onSubmit()">
           <tui-icon
             icon="@tui.download"
             [style.height.rem]="1"
