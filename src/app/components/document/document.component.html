@@ -63,6 +63,9 @@
               <div class="tui-space_top-4">
                 Перетащите файл или кликните для загрузки
               </div>
+              <div class="tui-text_body-m" style="color: var(--tui-text-secondary);">
+                {{accept}}
+              </div>
             </div>
           </div>
         </ng-template>
@@ -91,7 +94,13 @@
         *ngIf="control.value | tuiFileRejected: {accept: accept} | async as file"
         [file]="file"
         (remove)="removeFile()"
-      />
+      >
+        <div>
+          Поддерживаемы форматы: <span class="tui-text_body-xl" style="color: var(--tui-text-action-hover); font-weight: 500;">
+          {{accept}}
+        </span>
+        </div>
+      </tui-file>
     </div>
 
     <tui-scrollbar

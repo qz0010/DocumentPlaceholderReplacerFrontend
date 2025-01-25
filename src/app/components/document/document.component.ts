@@ -51,7 +51,7 @@ export class DocumentComponent implements AfterViewInit {
   private readonly http = inject(HttpClient);
   public pending$ = signal(false);
   private apiUrl = environment.apiUrl;
-  public accept = '.docx,.doc,.txt';
+  public accept = '.docx, .doc, .txt';
 
   public copyTextLoading$ = new BehaviorSubject<boolean>(false); // Для управления показом loader
   public copyTextSuccess$ = new BehaviorSubject<boolean>(false); // Для управления показом success
