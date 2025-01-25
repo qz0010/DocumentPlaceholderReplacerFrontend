@@ -8,7 +8,7 @@ import {
   TuiStepper,
   TuiStepperComponent
 } from '@taiga-ui/kit';
-import {AsyncPipe, NgClass, NgFor, NgIf} from '@angular/common';
+import {AsyncPipe, JsonPipe, NgClass, NgFor, NgIf} from '@angular/common';
 import {AfterViewInit, ChangeDetectionStrategy, Component, inject, signal, ViewChild} from '@angular/core';
 import {FormControl, FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {BehaviorSubject, catchError, delay, finalize, from, map, Observable, of, Subject, switchMap, tap} from 'rxjs';
@@ -41,6 +41,7 @@ import {environment} from '../../../environments/environment';
     TuiIcon,
     TuiButtonLoading,
     TuiChip,
+    JsonPipe,
   ],
   templateUrl: './document.component.html',
   styleUrl: './document.component.scss',
@@ -133,12 +134,13 @@ export class DocumentComponent implements AfterViewInit {
           res.variables.reduce((acc, _var) => {
             if (_var in b) {
               b[_var]++;
+            } else {
+              b[_var] = 0;
             }
             acc.push({
               variable: _var,
-              index: b[_var] || 0
+              index: b[_var]
             });
-            b[_var] = 0;
 
             this.form[_var] = [];
 
