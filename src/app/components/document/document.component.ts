@@ -51,6 +51,7 @@ export class DocumentComponent implements AfterViewInit {
   private readonly http = inject(HttpClient);
   public pending$ = signal(false);
   private apiUrl = environment.apiUrl;
+  public accept = '.docx,.doc,.txt';
 
   public copyTextLoading$ = new BehaviorSubject<boolean>(false); // Для управления показом loader
   public copyTextSuccess$ = new BehaviorSubject<boolean>(false); // Для управления показом success
@@ -83,7 +84,7 @@ export class DocumentComponent implements AfterViewInit {
       }),
       switchMap(() =>
         from(navigator.clipboard.writeText('<~!Переменная!~>')).pipe( // Скопировать текст
-          delay(400), // Подождать 1 секунду
+          delay(200), // Подождать 1 секунду
           tap(() => {
             this.copyTextLoading$.next(false);   // Скрыть loader
             this.copyTextSuccess$.next(true);   // Показать success

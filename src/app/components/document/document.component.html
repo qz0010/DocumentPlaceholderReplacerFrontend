@@ -20,7 +20,7 @@
           (click)="copyText$.next()"
         >
         </button>
-        <tui-chip appearance="positive" size="xs" iconStart="@tui.check" *ngIf="(copyTextSuccess$ | async)"></tui-chip>
+        <tui-chip appearance="positive" size="xs" iconStart="@tui.check" [ngClass]="{'v-hidden': !(copyTextSuccess$ | async)}"></tui-chip>
         <br>и отобразит их
         список.<br>
         2) Заполните значения для переменных<br>
@@ -39,10 +39,12 @@
     <div>
       <label
         tuiInputFiles
-        [ngClass]="{ 'd-none': loadedFiles$ | async }"
+        [ngClass]="{
+          'd-none': (loadedFiles$ | async) || (control.value | tuiFileRejected: {accept: accept} | async)
+        }"
       >
         <input
-          accept=".docx"
+          [accept]="accept"
           tuiInputFiles
           [maxFileSize]="Infinity"
           [formControl]="control"
@@ -82,6 +84,14 @@
           (remove)="removeFile()"
         />
       </tui-files>
+
+      <tui-file
+        class="file-content"
+        state="error"
+        *ngIf="control.value | tuiFileRejected: {accept: accept} | async as file"
+        [file]="file"
+        (remove)="removeFile()"
+      />
     </div>
 
     <tui-scrollbar
@@ -128,8 +138,6 @@
           <td
             tuiTd
             *tuiCell="'value'"
-
-
           >
             <tui-textarea
               class="textarea"

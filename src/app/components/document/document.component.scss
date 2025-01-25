@@ -15,6 +15,7 @@ button[data-appearance=positive] {
 
 .doc {
   max-width: 75rem;
+  padding: 0 2rem 2rem;
   margin: 0 auto;
   text-align: left;
 
@@ -70,6 +71,10 @@ button[data-appearance=positive] {
 
 .d-none {
   display: none !important;
+}
+
+.v-hidden {
+  visibility: hidden !important;
 }
 
 table {
